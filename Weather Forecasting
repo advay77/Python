@@ -1,0 +1,61 @@
+import tkinter as tk
+import requests
+import json
+from PIL import ImageTk, Image
+import datetime
+
+class WeatherApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Advanced Weather App")
+        self.root.geometry("600x700")
+        self.root.configure(bg="white")
+
+        # Load images
+        self.day_image = ImageTk.PhotoImage(Image.open('sun.png'))
+        self.night_image = ImageTk.PhotoImage(Image.open('moon.png'))
+
+        # Labels
+        self.date_label = tk.Label(self.root, text="", bg='white', font=("bold", 15))
+        self.date_label.place(x=5, y=130)
+
+        self.month_label = tk.Label(self.root, text="", bg='white', font=("bold", 15))
+        self.month_label.place(x=100, y=130)
+
+        self.hour_label = tk.Label(self.root, text="", bg='white', font=("bold", 15))
+        self.hour_label.place(x=10, y=160)
+
+        self.weather_image = tk.Label(self.root, image=self.day_image, bg='white')
+        self.weather_image.place(x=210, y=200)
+
+        # Entry
+        self.city_name = tk.StringVar()
+        self.city_entry = tk.Entry(self.root, textvariable=self.city_name, width=45)
+        self.city_entry.grid(row=1, column=0, ipady=10, sticky=tk.W + tk.E + tk.N + tk.S)
+
+        # Button
+        self.get_weather_button = tk.Button(self.root, text="Get Weather", command=self.get_weather_data)
+        self.get_weather_button.grid(row=2, column=0, pady=10)
+
+    def get_weather_data(self):
+        api_key = "http://api.openweathermap.org/data/2.5/forecast?id=524901&appid={0da2addd55136c1e2107045dad681870}"
+        api_request = requests.get(f"https://api.openweathermap.org/data/2.5/weather?q={self.city_entry.get()}&units=metric&appid={0da2addd55136c1e2107045dad681870}")
+        api_data = json.loads(api_request.content)
+        temperature = api_data['main']['temp']
+        # Extract other weather data as needed
+
+        # Update labels with weather data
+        self.date_label.config(text=datetime.datetime.now().strftime('%A--'))
+        self.month_label.config(text=datetime.datetime.now().strftime('%m %B'))
+        self.hour_label.config(text=datetime.datetime.now().strftime('%I : %M %p'))
+
+        # Determine day or night
+        if 8 <= int(datetime.datetime.now().strftime('%I')) <= 17:
+            self.weather_image.config(image=self.day_image)
+        else:
+            self.weather_image.config(image=self.night_image)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = WeatherApp(root)
+    root.mainloop()
